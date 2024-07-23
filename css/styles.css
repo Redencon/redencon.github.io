@@ -4357,6 +4357,12 @@ textarea.form-control-lg {
   }
 }
 
+@media (max-width: 600px) {
+  .hide-mobile {
+    display: none;
+  }
+}
+
 .envelope {
   display: flex;
   overflow: visible;
