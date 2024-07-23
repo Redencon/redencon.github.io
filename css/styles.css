@@ -4434,6 +4434,46 @@ textarea.form-control-lg {
   }
 }
 
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Adjust the gap between images as needed */
+}
+
+.gallery .gcard {
+  flex: 1 1 calc(33.333% - 16px); /* Three items per row with gap consideration */
+  max-width: calc(33.333% - 16px); /* Ensure max-width is the same as flex-basis */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  aspect-ratio: 1/1;
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery .gcard img {
+  width: 100%;
+  min-height: 100%;
+  position: absolute;
+  top: 0;
+  object-fit: cover; /* Ensures the image covers the area without distortion */
+}
+
+.oc-text {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.6);
+  position: relative;
+  z-index: 2;
+  padding: 2em;
+}
+
+img.oc-bg {
+  position: absolute;
+  width: 70%;
+  right: 0;
+  top: 0;
+  opacity: 0.2;
+  
+}
+
 .im-link:hover {
   box-shadow: 0 8px 16px rgba(79, 175, 0, 0.795);
 }
@@ -7456,6 +7496,10 @@ textarea.form-control-lg {
 
 .min-vh-100 {
   min-height: 100vh !important;
+}
+
+.flex-display {
+  display: flex;
 }
 
 .flex-fill {
