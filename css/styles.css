@@ -4472,9 +4472,9 @@ textarea.form-control-lg {
 }
 
 img.oc-bg {
-  position: absolute;
   max-height: 1000px;
   max-width: 100%;
+  position: absolute;
   right: 0;
   top: 10%;
   opacity: 0.2;
