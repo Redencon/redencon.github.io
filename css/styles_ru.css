@@ -257,6 +257,16 @@ a:not([href]):not([class]), a:not([href]):not([class]):hover {
   text-decoration: none;
 }
 
+span.a_decoy {
+  color: var(--bs-link-color);
+  text-decoration: underline;
+
+  :hover {
+    color: var(--bs-link-hover-color);
+  }
+}
+
+
 pre,
 code,
 kbd,
