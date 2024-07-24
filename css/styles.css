@@ -4475,6 +4475,7 @@ img.oc-bg {
   position: absolute;
   height: 1000px;
   width: auto;
+  max-width: 100%;
   right: 0;
   top: 10%;
   opacity: 0.2;
