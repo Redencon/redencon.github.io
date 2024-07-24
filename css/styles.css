@@ -4473,8 +4473,7 @@ textarea.form-control-lg {
 
 img.oc-bg {
   position: absolute;
-  height: 1000px;
-  width: auto;
+  max-height: 1000px;
   max-width: 100%;
   right: 0;
   top: 10%;
