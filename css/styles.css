@@ -265,6 +265,7 @@ span.a_decoy {
 
 span.a_decoy:hover {
   color: var(--bs-link-hover-color);
+  cursor: pointer;
 }
 
 pre,
