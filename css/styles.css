@@ -261,10 +261,10 @@ a:not([href]):not([class]), a:not([href]):not([class]):hover {
 span.a_decoy {
   color: var(--bs-link-color);
   text-decoration: underline;
+}
 
-  :hover {
-    color: var(--bs-link-hover-color);
-  }
+span.a_decoy:hover {
+  color: var(--bs-link-hover-color);
 }
 
 pre,
