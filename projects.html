@@ -3,8 +3,13 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
+        <meta name="description" content="Redencon's projects" />
+        <meta name="author" content="Redencon" />
+        <meta property="og:title" content="Projects of Redencon" />
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="Redencon's projects" />
+        <meta property="og:image" content="https://redencon.ru/assets/ocs/Saman0.png" />
+        <meta property="og:url" content="https://redencon.ru/projects" />
         <title>Projects - Redencon</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
@@ -16,6 +21,7 @@
         <script src="https://kit.fontawesome.com/ec910f14a9.js" crossorigin="anonymous"></script>
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="/css/styles.css" rel="stylesheet" />
+        <link href="/css/color_saman.css" rel="stylesheet" />
     </head>
     <body class="d-flex flex-column h-100 bg-light">
         <main class="flex-shrink-0">
@@ -44,20 +50,20 @@
                     <div class="row gx-5 justify-content-center">
                         <div class="col-lg-11 col-xl-9 col-xxl-8">
                             <details open="true">
-                                <summary class="text-primary fw-bolder mb0 glint">Python tools</summary>
+                                <summary class="text-primary fw-bolder mb0 glint">Python Tools</summary>
                                     <!-- Project Card 0.1-->
                                     <div class="envelope border-0 mb-5">
                                         <div class="envelope-content">
                                             <h2 class="fw-bolder"> <em>"IdentiPIPE"</em> </h2>
                                             <p>
                                                 With the need to provide a user-friendly alternative to a collection of CLI-only tools,
-                                                often chained by hand in Jupyter notebooks by tool creators, an idea of GUI with workflows
-                                                was born. This project aims to create the pipeline of completing peptide search in MS/MS
-                                                data with further validation and quantification - all within a single suite with all connections
+                                                often chained by hand in Jupyter notebooks by tool creators, the idea of GUI with workflows
+                                                was born. This project aims to create the pipeline for completing peptide search in MS/MS
+                                                data with further validation and quantification — all within a single suite with all connections
                                                 already thought through. My part in this project is providing visual elements and output windows
-                                                with simple data management functionality with the use of Tkinter - a native Python GUI.
-                                                Although it is a hard and oftentimes ungrateful task, it led to a current state of relatively
-                                                nice and compact app, but with quite a slow response.
+                                                with simple data management functionality, with the use of Tkinter - a native Python GUI.
+                                                Although it is a hard and oftentimes ungrateful task, it led to a current state of a relatively
+                                                nice and compact app, though it has a somewhat slow response time.
                                             </p>
                                         </div>
                                         <img class="envelope-image-container" src="/assets/IdentiPIPE.png" alt="Identipipe interface clips">
@@ -67,12 +73,12 @@
                                         <div class="envelope-content">
                                             <h2 class="fw-bolder"> Quantis </h2>
                                             <p>
-                                                Nice interfaces were needed for multiple purposes. This time I was asked to make
+                                                Better interfaces were needed for different tasks. This time I was asked to turn
                                                 my Dash app for quantification analysis (effectively doubling existing CLI tool
                                                 <a href="https://github.com/kazakova/Metrics">QRePS</a>) into a standalone tool
-                                                suitable for any type of quick analyses. It is much more simple than Perseus -
+                                                suitable for any type of quick quantitive data visualization. It is much more simple than Perseus -
                                                 a similar tool designed for Max Quant, but with its simplicity comes ease of use
-                                                and relatively small size: this shiny app with Python 3.11 in it and all of its
+                                                and relatively small size: this shiny app with Python 3.11 completely embedded in it and all of its
                                                 dependencies can be compressed into a tiny 140MB zip archive. Impressive!
                                             </p>
                                         </div>
@@ -80,18 +86,18 @@
                                     </div>
                             </details>
                             <details open="true">
-                                <summary class="text-primary fw-bolder mb0 glint">Telegram bots</summary>
+                                <summary class="text-primary fw-bolder mb0 glint">Telegram Bots</summary>
                                 <!-- Project Card 1-->
                                 <div class="envelope border-0 mb-5">
                                     <div class="envelope-content">
                                         <h2 class="fw-bolder"> Rabotyaga bot </h2>
                                         <p>
-                                            Rabotyaga bot is a bot for Telegram, which assists Student council activists
+                                            Rabotyaga bot is a bot for Telegram, that assists student council activists
                                             in their work. It forwards messages from group inbox into Telegram,
                                             organizes events and polls, provides basic chatbot functionality, stores memes.
                                             Initially it was designed as a linker solution between Telegram and coda API,
                                             as coda was (and still is) very mobile-unfriendly, and bot should have made
-                                            the activist's job easier. Although this module still works, the lack of interest
+                                            the activists' job easier. Although this module still works, the lack of interest
                                             in coda as a whole makes such features redundant.
                                         </p>
                                     </div>
@@ -108,8 +114,8 @@
                                                     questioning respondents several times over time instead of once
                                                 </span>
                                             </span>
-                                            research of students' mental health. With initial 1-5 numeric questions,
-                                            some time and foreign inspirations were needed to come to a recognizable
+                                            research of students' mental health. With initial numeric scale from 1 to 5,
+                                            some time and foreign inspirations were needed to come up with a recognizable
                                             formula of 7 colorful hearts (later made customizable) as a staple of well
                                             made daily polling. Even small at launch, the bot got to 50 daily users without
                                             any external incentives other than students' will to use the bot.
@@ -125,18 +131,18 @@
                                             Well before BiotechDay 2024 was announced, the event team contacted me with
                                             a request to create a news bot for them to inform participants of any updates
                                             and to provide event schedule and registrations. For this bot, I've written
-                                            a new bot basis for the stateful bot with decision tree, as well as questionnaire
+                                            a new code templates for the stateful bot with decision tree, as well as questionnaire
                                             module and SQLAlchemy integration module. This was the interesting experience
-                                            to develop the project fully by "customer" requests, and I've learned
-                                            a lot about scheduling and SQL use in Python. Different code snippets
-                                            from biotechday bot are used in my other projects, as they were quite successful.
+                                            to develop the project fully based on "customer" requests, and I've learned
+                                            a lot about scheduling and SQL use in Python. Various code snippets
+                                            from BiotechDay bot are used in my other projects, as they were quite successful.
                                         </p>
                                     </div>
                                     <img class="envelope-image-container" src="/assets/bdbot.jpg" alt="BiotechDay logo">
                                 </div>
                             </details>
                             <details open="true">
-                                <summary class="text-primary fw-bolder mb0 glint">Data analysis</summary>
+                                <summary class="text-primary fw-bolder mb0 glint">Data Analysis</summary>
                                 <!-- Project Card 3-->
                                 <div class="envelope border-0 mb-5">
                                     <div class="envelope-content">
@@ -144,11 +150,11 @@
                                         <p>
                                             All five semesters of General Physics had a lab practice. The premise of each work
                                             is to conduct a miniature research on some specific physical effect, collect and analyze
-                                            the data and make some conclusions. First year physics was taught by "Old School"
+                                            the data and make some conclusions. First year physics was taught by "old-school"
                                             teachers promoting the use of pen and pencils for the whole work, but all further
                                             courses the more modern approach was welcomed: building plots and doing statistical
                                             analysis on computer (with Python in my case) and then print the LaTeX version of
-                                            a final report. This course made me very comfortable with Python as analytics
+                                            a final report. This course made me very comfortable with many Python packages as analytics
                                             and visualization tools. When working in teams, I preferred to take the role
                                             of data wrangler and plot builder.
                                         </p>
@@ -163,9 +169,9 @@
                                             I joined the Mental Health Questionnaire team as an analyst at MKI's 2022 Autumn "Vyezd".
                                             Our main focus was to find which student groups have the poorest mental health condition
                                             and if these groups are avoiding Phystech psychologists. It was an important research
-                                            with important conclusions, although in retrospect our methods were questionable, 
+                                            with important conclusions, although, in retrospect, our methods were questionable, 
                                             to say the least. Later iterations of this questionnaire greatly reduced
-                                            the observed severity of the problem, but confirmed that the problem is real.
+                                            the observed severity of the problem but confirmed that the it is real.
                                         </p>
                                     </div>
                                     <a href="https://vk.com/wall-33113779_9934"><img class="envelope-image-container im-link" src="/assets/MH2020.png" alt="Report title page"></a>
@@ -178,17 +184,17 @@
                                     <div class="envelope-content">
                                         <h2 class="fw-bolder"> Campus Navigation </h2>
                                         <p>
-                                            There are six interconnected buildings in MIPT campus with lots of study
+                                            There are six interconnected buildings on the MIPT campus with lots of study
                                             and lecture rooms. Sometimes it's hard to get where one can be from room's
                                             name alone. MKI planned to solve this problem by creating directional signs
                                             years ago, but the project never reached the implementation. In 2023 the idea
                                             to work on this project was suggested as a case for annual "Vyezd" and I, with
-                                            Alice decide to lead this project. With the newly created team we developed
+                                            the help of Alice Bugrova decided to lead this project. With the newly created team we developed
                                             a design code for future signs, and after a few more months of work the project
                                             was approved and financed by university administration. At that point we
                                             managed to add signs to Phystech.Quantum building, which was very positively
-                                            accepted by students. In 2024, we continued to develop signs for other buildings
-                                            and at this point, the project is almost ready to proceed to the next stage:
+                                            accepted by students. In 2024, we continued to develop signs for other buildings,
+                                            and at this point the project is almost ready to proceed to the next stage:
                                             signs in Applied Math, Main and Laboratory Buildings. All that remains is to
                                             get approval from the administration.
                                         </p>
@@ -209,7 +215,7 @@
                                             about recent events in my life and in MIPT. Unfortunately, I've stopped actively
                                             writing articles for the blog, as studying, activism and work projects took
                                             over almost all of my time. I hope I'll be able to publish a semi-annual 
-                                            review of the last semester, but I haven't yet started. All the stuff I Write
+                                            review of the last semester, but I haven't yet started. All the stuff I write
                                             here on this site help to get back to writing and scratches that itch to tell
                                             others more about me.
                                         </p>
