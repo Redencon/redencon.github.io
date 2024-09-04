@@ -1,0 +1,12 @@
+:root {
+    --bs-primary: #AB312E;
+    --bs-primary-grayed: #BC5753;
+    --bs-primary-hover: #BC5753;
+    --bs-secondary: #5E4948;
+    --bs-secondary-hover: #7D6867;
+    --bs-primary-rgb: 205, 16, 14;
+    --bs-secondary-rgb: 44, 44, 55;
+    --bs-link-color: #AB312E;
+    --bs-link-hover-color: #BC5753;
+    --bs-code-color: #7D6867;
+}
