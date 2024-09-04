@@ -4533,7 +4533,7 @@ img.oc-bg {
 }
 
 img.ocs {
-  border-radius: var(--bs-btn-border-radius);
+  border-radius: 1em;
 }
 
 .im-link:hover {
