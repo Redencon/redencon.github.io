@@ -4532,6 +4532,10 @@ img.oc-bg {
   z-index: -1;
 }
 
+img.ocs {
+  border-radius: var(--bs-btn-border-radius);
+}
+
 .im-link:hover {
   box-shadow: 0 8px 16px rgba(79, 175, 0, 0.795);
 }
