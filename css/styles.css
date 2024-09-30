@@ -4520,6 +4520,8 @@ summary.glint:hover {
   position: relative;
   z-index: 2;
   padding: 2em;
+  border-radius: 1em;
+  margin-bottom: 1em;
 }
 
 img.oc-bg {
@@ -11810,9 +11812,9 @@ html {
   -webkit-text-fill-color: transparent;
 }
 
-/* .rounded-4 {
+.rounded-4 {
   border-radius: 1rem !important;
-} */
+}
 
 .feature {
   display: inline-flex;
