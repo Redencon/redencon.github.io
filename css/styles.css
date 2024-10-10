@@ -4465,7 +4465,7 @@ summary.glint:hover {
 
 @media (min-width: 768px) {
   .envelope {
-    height: 300px;
+    min-height: 300px;
   }
 }
 
