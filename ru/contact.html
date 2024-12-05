@@ -22,6 +22,20 @@
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="/css/styles.css" rel="stylesheet" />
         <link href="/css/color_flenco.css" rel="stylesheet" />
+        <style>
+            .tetrio-link-wrapper {
+                position: relative;
+                display: inline-block;
+            }
+            .tetrio-link-wrapper img {
+                position: absolute;
+                left: -35px; /* Adjust this value as needed */
+                top: 50%;
+                transform: translateY(-50%);
+                height: 100%;
+                aspect-ratio: 1/1;
+            }
+        </style>
     </head>
     <body class="d-flex flex-column">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 40 40" display="none" width="0" height="0">
@@ -74,7 +88,7 @@
                                     <a class="btn btn-secondary btn-lg" href="https://discordapp.com/users/219035398964379658/"><i class="fa-brands fa-discord"></i> Дискорд</a>
                                     <a class="btn btn-secondary btn-lg" href="https://www.furaffinity.net/user/redencon"><svg><use xlink:href="#icon-FA"></use></svg> FurAffinity</a>
                                     <a class="btn btn-secondary btn-lg" href="https://steamcommunity.com/id/redencon/"><i class="fa-brands fa-steam"></i> Steam</a>
-                                    <a class="btn btn-secondary btn-lg" href="https://ch.tetr.io/u/redencon"><img src="/assets/tetrio-mono.svg" height="30px"/> Tetr.io</a>
+                                    <a class="btn btn-secondary btn-lg tetrio-link-wrapper" href="https://ch.tetr.io/u/redencon" id="tetrio-link"><img src="/assets/tetrio-mono.svg" height="30px"/> <span>Tetr.io</span></a>
                                 </div>
                             </div>
                         </div>
@@ -94,5 +108,17 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const rank = "s+";
+                const imgUrl = `https://tetr.io/res/league-ranks/${rank}.png`;
+                const tetrioLink = document.getElementById('tetrio-link');
+                const imgElement = document.createElement('img');
+                imgElement.src = imgUrl;
+                imgElement.alt = `Rank: ${rank}`;
+                imgElement.height = 30;
+                tetrioLink.insertBefore(imgElement, tetrioLink.firstChild);
+            });
+        </script>
     </body>
 </html>
