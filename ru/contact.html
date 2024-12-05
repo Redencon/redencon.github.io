@@ -27,13 +27,12 @@
                 position: relative;
                 display: inline-block;
             }
-            .tetrio-link-wrapper img {
+            .tetrio-link-img {
                 position: absolute;
                 left: -35px; /* Adjust this value as needed */
                 top: 50%;
                 transform: translateY(-50%);
-                height: 100%;
-                aspect-ratio: 1/1;
+                height: 30px;
             }
         </style>
     </head>
@@ -117,6 +116,7 @@
                 imgElement.src = imgUrl;
                 imgElement.alt = `Rank: ${rank}`;
                 imgElement.height = 30;
+                imgElement.className = 'tetrio-link-img'
                 tetrioLink.insertBefore(imgElement, tetrioLink.firstChild);
             });
         </script>
