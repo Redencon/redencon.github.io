@@ -1,5 +1,5 @@
 .christmas-lights {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -7,6 +7,7 @@
     display: flex;
     justify-content: space-around;
     pointer-events: none;
+    z-index: 10;
 }
 
 .christmas-lights .light {
