@@ -1,0 +1,36 @@
+.christmas-lights {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-around;
+    pointer-events: none;
+}
+
+.christmas-lights .light {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    background: radial-gradient(circle, rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 0) 70%);
+    animation: blink 1s infinite alternate;
+}
+
+.christmas-lights .light.green {
+    background: radial-gradient(circle, rgba(0, 255, 0, 1) 0%, rgba(0, 255, 0, 0) 70%);
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.3;
+    }
+}
+
+.christmas-lights .light:nth-child(odd) {
+    animation-delay: 0.5s;
+}
