@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<meta name="description" content="What Redencon wants" />
+<meta name="author" content="Redencon" />
+<meta property="og:title" content="Redencon" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="What Redencon wants" />
+<meta property="og:image" content="https://redencon.ru/assets/ocs/Saman0.png" />
+<meta property="og:url" content="https://redencon.ru/wishlist" />
+<!-- Favicon-->
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+<!-- Custom Google font-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+<!-- Bootstrap icons-->
+<script src="https://kit.fontawesome.com/ec910f14a9.js" crossorigin="anonymous"></script>
+<!-- Core theme CSS (includes Bootstrap)-->
+<link href="/css/styles.css" rel="stylesheet" />
+<link href="/css/color_saman.css" rel="stylesheet" />
+<link href="/css/lights.css" rel="stylesheet" />
+<title>Wishlist</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body { background: #f8f7f4;}
+  h1 { font-size: 2rem; font-weight: 400; letter-spacing: 0.02em; }
+
+  .notice-congrats {
+    background: #fdf8ef;
+    border-left: 4px solid #c9a84c;
+    color: #5a4a1e;
+  }
+  .notice-money {
+    background: #f5f5f5;
+    border-left: 4px solid #bbb;
+    color: #666;
+    font-size: 0.92rem;
+  }
+
+  .wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.25rem;
+    grid-auto-rows: auto;
+  }
+
+  .wish-card {
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e5e0d8;
+    transition: box-shadow 0.2s;
+    min-height: 180px;
+  }
+  .wish-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.09); }
+
+  .wish-card .card-img-top {
+    width: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: block;
+  }
+  .scale-1 .card-img-top { height: 160px; }
+  .scale-2 .card-img-top { height: 200px; }
+  .scale-3 .card-img-top { height: 260px; }
+
+  /* No-image placeholder */
+  .card-img-placeholder {
+    width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.18;
+  }
+  .scale-1 .card-img-placeholder { height: 80px; }
+  .scale-2 .card-img-placeholder { height: 100px; }
+  .scale-3 .card-img-placeholder { height: 120px; }
+  .card-img-placeholder svg { width: 48px; height: 48px; }
+
+  .wish-card .card-body { padding: 1rem 1.1rem; flex: 1; display: flex; flex-direction: column; }
+  .wish-card .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; color: #222; }
+  .wish-card .card-text { font-size: 0.88rem; color: #666; flex: 1; }
+
+  .category-badge {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  .cat-things      { background: #e8f0fb; color: #2855a0; }
+  .cat-oneofakind  { background: #fdf0e0; color: #8a4f10; }
+  .cat-artwork     { background: #f0ebf8; color: #5b2d8e; }
+  .cat-events      { background: #e6f7ee; color: #1a6640; }
+
+  .wish-card.cat-things     { border-left: 3px solid #6b93d6; }
+  .wish-card.cat-oneofakind { border-left: 3px solid #d4883a; }
+  .wish-card.cat-artwork    { border-left: 3px solid #9b6dc9; }
+  .wish-card.cat-events     { border-left: 3px solid #3aad6e; }
+
+  /* Placeholder tint per category */
+  .wish-card.cat-things .card-img-placeholder     { background: #e8f0fb; }
+  .wish-card.cat-oneofakind .card-img-placeholder { background: #fdf0e0; }
+  .wish-card.cat-artwork .card-img-placeholder    { background: #f0ebf8; }
+  .wish-card.cat-events .card-img-placeholder     { background: #e6f7ee; }
+
+  .col-span-4  { grid-column: span 4; }
+  .col-span-6  { grid-column: span 6; }
+  .col-span-8  { grid-column: span 8; }
+  .col-span-12 { grid-column: span 12; }
+
+  @media (max-width: 768px) {
+    .col-span-4, .col-span-6, .col-span-8, .col-span-12 { grid-column: span 12; }
+  }
+
+  .btn-wish {
+    font-size: 0.82rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: transparent;
+    padding: 5px 14px;
+    color: #444;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 0.75rem;
+    align-self: flex-start;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-wish:hover { background: #f0ebe2; border-color: #aaa; color: #222; }
+</style>
+</head>
+<body>
+<div class="container py-5" style="max-width: 960px;">
+
+  <h1 class="mb-1">Список желаемого</h1>
+  <p class="text-muted mb-4" style="font-size:0.95rem;">Немного идей что я был бы рад получить без привязки к праздникам</p>
+
+  <div class="notice-congrats p-3 mb-4">
+    <strong>О поздравлениях:</strong> Если есть желание поздравить меня с каким-то праздником, но не находится идей или возможностей для подарков, я всегда буду <em>полностью</em> доволен обычному позлравлению. Любое поздравление сделает мне приятно не хуже любого подарка.
+  </div>
+
+  <div class="wishlist-grid" id="wishlist-grid"></div>
+
+  <div class="notice-money p-3 mt-4">
+    <em>О денежных подарках и подарочных картах:</em> Я не люблю получать денежные подарки. Не потому что я считаю их плохим подарком или потому что они выглядят непродуманными. Подарки для меня являются долгим напоминанием о проявленном внимании, и деньги имеют свойство долго не задерживаться на месте. В любом случае я буду рад обычным поздравлениям, и совсем не обязательно их сопровождать донатами.
+  </div>
+
+</div>
+
+<script>
+const items = [
+  {
+    title: "Steam Controller",
+    description: "Новый контроллер от Valve который необычно сложно достать за адекватную цену. Может у тебя есть путь?",
+    image: "/assets/steam_controller.jpg",
+    link: "https://store.steampowered.com/sale/steamcontroller",
+    category: "things",
+    scale: 1
+  },
+  {
+    title: "Sony WH-1000XM5/6 / AirPods Max",
+    description: "У предыдущих сони сломался ANC но они были замечательными. Сейчас не тороплюсь покупать потому что мне хватает моих AirPods",
+    image: "/assets/sony_WH_1000XM6_black_0.webp",
+    link: "https://www.ozon.ru/product/naushniki-sony-wh-1000xm6-seryy-2207360045/",
+    category: "things",
+    scale: 1
+  },
+  {
+    title: "Боулинг",
+    description: "Летом я регулярно провожу игры в боулинг с друзьями. Если хочется поучаствовать, напиши мне",
+    image: null,
+    link: "https://t.me/redencon",
+    category: "events",
+    scale: 1
+  },
+  {
+    title: "Бильярд",
+    description: "Американский пул на 47 этаже башни ОКО в Сити. Если хочешь прийти поиграть, напиши мне",
+    image: null,
+    link: "https://t.me/redencon",
+    category: "events",
+    scale: 2
+  },
+  {
+    title: "Портрет Самана или Фленко",
+    description: "Любые арты с моими персонажами всегда меня безмерно радуют",
+    image: "/assets/ocs/Saman/Orb.jpg",
+    link: "/ocs",
+    category: "artwork",
+    scale: 3
+  },
+  {
+    title: "Эмалевые металлические значки",
+    description: "Неважно с чем, мне они все очень нравятся и я сам их иногда оптом делаю и заказываю",
+    image: null,
+    link: null,
+    category: "oneofakind",
+    scale: 2
+  },
+  {
+    title: "Кепка",
+    description: "Я не Хиоши, но дефиит кепок ощущаю. А ведь кепки это удобно! Есть характерный пример по ссылке",
+    image: "/assets/cap.webp",
+    link: "https://market.yandex.ru/cc/9XSURa",
+    category: "things",
+    scale: 1
+  },
+  {
+    title: "Игры в Steam",
+    description: "У меня есть список желаемого в Steam, хотя он стал заметно меньше",
+    image: null,
+    link: "https://store.steampowered.com/wishlist/id/redencon",
+    category: "things",
+    scale: 3
+  },
+  {
+    title: "Плюшевые игрушки",
+    description: "Всё, что прятно трогать, особенно если это круто поставить на рабочий стол или обнять в кроватке",
+    image: null,
+    link: "https://store.steampowered.com/wishlist/id/redencon",
+    category: "oneofakind",
+    scale: 1
+  },
+  {
+    title: "Поездка в Санкт-Петербург",
+    description: "Мне слишком скучно и дорого было бы ехать в одиночку, а за компанию я был бы счастлив ещё раз навестить этот замечательный город",
+    image: null,
+    link: null,
+    category: "events",
+    scale: 1
+  },
+  {
+    title: "Зелёный чай",
+    description: "От стаканчика чая до пакета с чайными листьями. Люблю зелёный чай",
+    image: null,
+    link: null,
+    category: "things",
+    scale: 2
+  },
+  {
+    title: "Роликовые коньки",
+    description: "42(.5?) размера. Потому что я люблю любые коньки, а предыдущие всё ещё непонятно где",
+    image: null,
+    link: null,
+    category: "things",
+    scale: 1
+  }
+];
+
+const catLabels = {
+  things: "Товары",
+  oneofakind: "Уникальное",
+  artwork: "Искусство",
+  events: "События"
+};
+
+const catIcons = {
+  things: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16h24l-3 18H15L12 16Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 16h30M20 16c0-4 8-4 8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  oneofakind: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 10c0 0-10 8-10 16a10 10 0 0020 0c0-8-10-16-10-16Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M24 38v-8M20 28l4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  artwork: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="14" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="20" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="28" cy="18" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="30" cy="28" r="2.5" stroke="currentColor" stroke-width="2"/><path d="M14 30c2-2 6 2 10-1s6-5 8-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  events: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="28" height="24" rx="3" stroke="currentColor" stroke-width="2"/><path d="M10 21h28M18 10v8M30 10v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 28h4v4h-4zM22 28h4v4h-4z" stroke="currentColor" stroke-width="1.5"/></svg>`,
+};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* Pack items into rows of 12 columns, trying to avoid orphaned gaps.
+   Returns an array of items annotated with their actual column span. */
+function packRows(items) {
+  const spanMap = { 1: 4, 2: 6, 3: 12 };
+  const result = [];
+  const pool = [...items];
+
+  while (pool.length) {
+    let remaining = 12;
+    const row = [];
+
+    // Greedily fill the row
+    for (let i = 0; i < pool.length && remaining > 0; i++) {
+      const span = spanMap[pool[i].scale];
+      if (span <= remaining) {
+        row.push({ ...pool[i], span });
+        remaining -= span;
+        pool.splice(i, 1);
+        i--;
+      }
+    }
+
+    // If there's leftover space and items remain, stretch the last card
+    if (remaining > 0 && row.length > 0) {
+      row[row.length - 1].span += remaining;
+    }
+
+    result.push(...row);
+  }
+
+  return result;
+}
+
+function render() {
+  const grid = document.getElementById("wishlist-grid");
+  const shuffled = shuffle(items);
+  const packed = packRows(shuffled);
+
+  grid.innerHTML = packed.map(item => {
+    const imgEl = item.image
+      ? `<img src="${item.image}" class="card-img-top" alt="${item.title}" loading="lazy">`
+      : `<div class="card-img-placeholder">${catIcons[item.category]}</div>`;
+
+    const linkBtn = item.link
+      ? `<a href="${item.link}" target="_blank" class="btn-wish">View &rarr;</a>`
+      : '';
+
+    return `
+      <div class="wish-card cat-${item.category} col-span-${item.span}">
+        ${imgEl}
+        <div class="card-body">
+          <span class="category-badge cat-${item.category}">${catLabels[item.category]}</span>
+          <div class="card-title">${item.title}</div>
+          <div class="card-text">${item.description}</div>
+          ${linkBtn}
+        </div>
+      </div>`;
+  }).join("");
+}
+
+render();
+</script>
+</body>
+</html>
