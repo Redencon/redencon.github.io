@@ -438,39 +438,56 @@ const congrats = [
   { author: "Катя",   time: "2025-06-03T18:55", text: "С днём рождения! Заслуживаешь всего хорошего" },
 ];
 
-// Horizontal positions (%) alternated to avoid overlap
-const leftSlots = [4, 42, 68, 12, 56, 30, 72];
+// Three non-overlapping columns (left%, given max-width:210px in a 960px container)
+const COLS = [3, 34, 65];
+const CLOUD_H = 95;
+const V_GAP = 18;
 
 function formatTime(isoStr) {
   const d = new Date(isoStr);
   return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" })
-    + " " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    + " · " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
 }
 
 function renderCongrats() {
   const scene = document.getElementById("tab-thanks");
-  const times = congrats.map(c => new Date(c.time).getTime());
-  const minT = Math.min(...times);
-  const maxT = Math.max(...times);
-  const sceneH = scene.offsetHeight || 560;
-  const cloudH = 100;
-  const topMin = 10, topMax = sceneH - cloudH - 20;
+  const sorted = [...congrats].sort((a, b) => new Date(a.time) - new Date(b.time));
 
-  scene.innerHTML = congrats.map((c, i) => {
+  const times = sorted.map(c => new Date(c.time).getTime());
+  const minT = times[0], maxT = times[times.length - 1];
+
+  // Ensure enough vertical room for all items per column
+  const itemsPerCol = Math.ceil(sorted.length / COLS.length);
+  const minSceneH = itemsPerCol * (CLOUD_H + V_GAP) + 40;
+  const sceneH = Math.max(560, minSceneH);
+  scene.style.minHeight = sceneH + "px";
+
+  const topMin = 10, topMax = sceneH - CLOUD_H - 20;
+
+  // Track last-placed bottom per column to enforce minimum spacing
+  const colBottom = COLS.map(() => topMin - CLOUD_H - V_GAP);
+
+  const placed = sorted.map((c, i) => {
     const t = new Date(c.time).getTime();
-    // Earlier → smaller top (higher on page)
-    const frac = maxT === minT ? 0 : (t - minT) / (maxT - minT);
-    const top = Math.round(topMin + frac * (topMax - topMin));
-    const left = leftSlots[i % leftSlots.length];
-    return `
-      <div class="congrats-cloud" style="top:${top}px; left:${left}%;">
-        <div class="cloud-text">${c.text}</div>
-        <div class="cloud-meta">
-          <span class="cloud-author">${c.author}</span>
-          <span>${formatTime(c.time)}</span>
-        </div>
-      </div>`;
-  }).join("");
+    const frac = maxT === minT ? i / sorted.length : (t - minT) / (maxT - minT);
+    const idealTop = Math.round(topMin + frac * (topMax - topMin));
+
+    const col = i % COLS.length;
+    const minTop = colBottom[col] + CLOUD_H + V_GAP;
+    const top = Math.max(idealTop, minTop);
+    colBottom[col] = top;
+
+    return { ...c, top, left: COLS[col] };
+  });
+
+  scene.innerHTML = placed.map(c => `
+    <div class="congrats-cloud" style="top:${c.top}px; left:${c.left}%;">
+      <div class="cloud-text">${c.text}</div>
+      <div class="cloud-meta">
+        <span class="cloud-author">${c.author}</span>
+        <span>${formatTime(c.time)}</span>
+      </div>
+    </div>`).join("");
 }
 
 renderCongrats();
