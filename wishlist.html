@@ -170,11 +170,42 @@
 
   .thanks-scene {
     position: relative;
-    margin-bottom: 1.5rem;
+    margin-bottom: 3rem;
+    border-radius: 12px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle, rgba(0,0,0,0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, #eef4ff 0%, #f7f5f2 55%, #fdf8ef 100%);
+    background-size: 26px 26px, 100% 100%;
+  }
+
+  .time-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .time-label-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(0,0,0,0.08);
+    margin: 0 10px;
+  }
+  .time-label-text {
+    font-size: 0.68rem;
+    color: #c0bab2;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-right: 12px;
   }
 
   .congrats-cloud {
     position: absolute;
+    z-index: 1;
     background: #fff;
     border: 1px solid #e5e0d8;
     border-radius: 18px;
@@ -480,11 +511,54 @@ function renderCongrats() {
     return { ...c, top, left: COLS[col] };
   });
 
-  const actualH = Math.max(...placed.map(c => c.top + CLOUD_H)) + 30;
+  const actualH = Math.max(...placed.map(c => c.top + CLOUD_H)) + 40;
   scene.style.minHeight = "";
   scene.style.height = actualH + "px";
 
-  scene.innerHTML = placed.map(c => `
+  // Adaptive time markers based on actual span
+  const spanMs = maxT - minT;
+  const H = 3600e3, D = 86400e3, W = 7 * D, M = 30 * D;
+
+  let stepMs, floorFn, labelFn;
+  if (spanMs < 6 * H) {
+    stepMs = H / 2;
+    floorFn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() < 30 ? 0 : 30);
+    labelFn = d => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  } else if (spanMs < 3 * D) {
+    stepMs = H;
+    floorFn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours());
+    labelFn = d => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+                + " · " + d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+  } else if (spanMs < 3 * W) {
+    stepMs = D;
+    floorFn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    labelFn = d => d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+  } else if (spanMs < 4 * M) {
+    stepMs = W;
+    floorFn = d => { const day = d.getDay(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((day + 6) % 7)); };
+    labelFn = d => "Неделя с " + d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+  } else {
+    stepMs = M;
+    floorFn = d => new Date(d.getFullYear(), d.getMonth(), 1);
+    labelFn = d => d.toLocaleDateString("ru-RU", { month: "long", year: "numeric" });
+  }
+
+  const monthMarkers = [];
+  const cur = floorFn(new Date(minT));
+  const dateMax = new Date(maxT);
+  while (cur <= dateMax) {
+    const t = cur.getTime();
+    const frac = maxT === minT ? 0 : (t - minT) / (maxT - minT);
+    const top = Math.round(topMin + frac * (topMax - topMin));
+    monthMarkers.push({ label: labelFn(new Date(t)), top });
+    cur.setTime(cur.getTime() + stepMs);
+  }
+
+  scene.innerHTML = monthMarkers.map(m => `
+    <div class="time-label" style="top:${m.top}px;">
+      <div class="time-label-line"></div>
+      <span class="time-label-text">${m.label}</span>
+    </div>`).join("") + placed.map(c => `
     <div class="congrats-cloud" style="top:${c.top}px; left:${c.left}%;">
       <div class="cloud-text">${c.text}</div>
       <div class="cloud-meta">
