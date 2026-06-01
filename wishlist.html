@@ -138,6 +138,76 @@
     transition: background 0.15s, border-color 0.15s;
   }
   .btn-wish:hover { background: #f0ebe2; border-color: #aaa; color: #222; }
+
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e5e0d8;
+    margin-bottom: 1.5rem;
+  }
+  .tab-btn {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .tab-btn.active {
+    color: #222;
+    border-bottom-color: #222;
+  }
+  .tab-btn:hover:not(.active):not(:disabled) { color: #444; }
+  .tab-btn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .thanks-scene {
+    position: relative;
+    min-height: 560px;
+  }
+
+  .congrats-cloud {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #e5e0d8;
+    border-radius: 18px;
+    padding: 0.7rem 1rem 0.6rem;
+    max-width: 210px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+    transition: box-shadow 0.2s;
+  }
+  .congrats-cloud::after {
+    content: '';
+    position: absolute;
+    bottom: -9px;
+    left: 22px;
+    width: 0; height: 0;
+    border-left: 9px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 9px solid #fff;
+    filter: drop-shadow(0 2px 1px rgba(0,0,0,0.06));
+  }
+  .cloud-text {
+    font-size: 0.88rem;
+    color: #333;
+    margin-bottom: 0.4rem;
+    line-height: 1.4;
+  }
+  .cloud-meta {
+    font-size: 0.72rem;
+    color: #bbb;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .cloud-author { font-weight: 600; color: #999; }
 </style>
 </head>
 <body>
@@ -146,11 +216,17 @@
   <h1 class="mb-1">Список желаемого</h1>
   <p class="text-muted mb-4" style="font-size:0.95rem;">Немного идей что я был бы рад получить без привязки к праздникам</p>
 
+  <nav class="tab-bar">
+    <button class="tab-btn active">Вишлист</button>
+    <button class="tab-btn" disabled title="Скоро">Благодарности</button>
+  </nav>
+
   <div class="notice-congrats p-3 mb-4">
     <strong>О поздравлениях:</strong> Если есть желание поздравить меня с каким-то праздником, но не находится идей или возможностей для подарков, я всегда буду <em>полностью</em> доволен обычному позлравлению. Любое поздравление сделает мне приятно не хуже любого подарка.
   </div>
 
   <div class="wishlist-grid" id="wishlist-grid"></div>
+  <div class="thanks-scene" id="tab-thanks" style="display:none;"></div>
 
   <div class="notice-money p-3 mt-4">
     <em>О денежных подарках и подарочных картах:</em> Я не люблю получать денежные подарки. Не потому что я считаю их плохим подарком или потому что они выглядят непродуманными. Подарки для меня являются долгим напоминанием о проявленном внимании, и деньги имеют свойство долго не задерживаться на месте. В любом случае я буду рад обычным поздравлениям, и совсем не обязательно их сопровождать донатами.
@@ -350,6 +426,54 @@ function render() {
 }
 
 render();
+
+// --- Благодарности ---
+const congrats = [
+  { author: "Настя",  time: "2025-01-01T00:07", text: "С Новым годом! Пусть всё задуманное сбывается" },
+  { author: "Паша",   time: "2025-01-01T10:30", text: "С Новым годом, дорогой!" },
+  { author: "Лёша",   time: "2025-02-14T14:22", text: "С Днём всех влюблённых! Ты лучший" },
+  { author: "Маша",   time: "2025-06-03T09:05", text: "С днём рождения! Желаю всего самого лучшего 🎂" },
+  { author: "Юля",    time: "2025-06-03T09:41", text: "С ДР!! Ты лучший, обнимаю" },
+  { author: "Серёжа", time: "2025-06-03T12:00", text: "С днём рождения, дружище! Здоровья и удачи" },
+  { author: "Катя",   time: "2025-06-03T18:55", text: "С днём рождения! Заслуживаешь всего хорошего" },
+];
+
+// Horizontal positions (%) alternated to avoid overlap
+const leftSlots = [4, 42, 68, 12, 56, 30, 72];
+
+function formatTime(isoStr) {
+  const d = new Date(isoStr);
+  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" })
+    + " " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+}
+
+function renderCongrats() {
+  const scene = document.getElementById("tab-thanks");
+  const times = congrats.map(c => new Date(c.time).getTime());
+  const minT = Math.min(...times);
+  const maxT = Math.max(...times);
+  const sceneH = scene.offsetHeight || 560;
+  const cloudH = 100;
+  const topMin = 10, topMax = sceneH - cloudH - 20;
+
+  scene.innerHTML = congrats.map((c, i) => {
+    const t = new Date(c.time).getTime();
+    // Earlier → smaller top (higher on page)
+    const frac = maxT === minT ? 0 : (t - minT) / (maxT - minT);
+    const top = Math.round(topMin + frac * (topMax - topMin));
+    const left = leftSlots[i % leftSlots.length];
+    return `
+      <div class="congrats-cloud" style="top:${top}px; left:${left}%;">
+        <div class="cloud-text">${c.text}</div>
+        <div class="cloud-meta">
+          <span class="cloud-author">${c.author}</span>
+          <span>${formatTime(c.time)}</span>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+renderCongrats();
 </script>
 </body>
 </html>
