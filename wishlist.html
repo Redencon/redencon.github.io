@@ -173,10 +173,14 @@
     margin-bottom: 3rem;
     border-radius: 12px;
     overflow: hidden;
-    background:
-      radial-gradient(circle, rgba(0,0,0,0.045) 1px, transparent 1px),
-      linear-gradient(to bottom, #eef4ff 0%, #f7f5f2 55%, #fdf8ef 100%);
-    background-size: 26px 26px, 100% 100%;
+    background: linear-gradient(to bottom, #eef4ff 0%, #f7f5f2 55%, #fdf8ef 100%);
+  }
+
+  .scene-shape {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
   }
 
   .time-label {
@@ -517,44 +521,60 @@ function renderCongrats() {
 
   // Adaptive time markers based on actual span
   const spanMs = maxT - minT;
-  const H = 3600e3, D = 86400e3, W = 7 * D, M = 30 * D;
+  const H = 3600e3, D = 86400e3, W = 7 * D;
 
-  let stepMs, floorFn, labelFn;
+  let floorFn, stepFn, labelFn;
   if (spanMs < 6 * H) {
-    stepMs = H / 2;
     floorFn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() < 30 ? 0 : 30);
+    stepFn  = d => new Date(d.getTime() + H / 2);
     labelFn = d => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
   } else if (spanMs < 3 * D) {
-    stepMs = H;
     floorFn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours());
+    stepFn  = d => new Date(d.getTime() + H);
     labelFn = d => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
                 + " · " + d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
   } else if (spanMs < 3 * W) {
-    stepMs = D;
     floorFn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    stepFn  = d => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
     labelFn = d => d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
-  } else if (spanMs < 4 * M) {
-    stepMs = W;
+  } else if (spanMs < 4 * 30 * D) {
     floorFn = d => { const day = d.getDay(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((day + 6) % 7)); };
+    stepFn  = d => new Date(d.getTime() + W);
     labelFn = d => "Неделя с " + d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
   } else {
-    stepMs = M;
     floorFn = d => new Date(d.getFullYear(), d.getMonth(), 1);
+    stepFn  = d => new Date(d.getFullYear(), d.getMonth() + 1, 1);
     labelFn = d => d.toLocaleDateString("ru-RU", { month: "long", year: "numeric" });
   }
 
   const monthMarkers = [];
-  const cur = floorFn(new Date(minT));
-  const dateMax = new Date(maxT);
-  while (cur <= dateMax) {
+  let cur = floorFn(new Date(minT));
+  while (cur.getTime() <= maxT) {
     const t = cur.getTime();
     const frac = maxT === minT ? 0 : (t - minT) / (maxT - minT);
     const top = Math.round(topMin + frac * (topMax - topMin));
     monthMarkers.push({ label: labelFn(new Date(t)), top });
-    cur.setTime(cur.getTime() + stepMs);
+    cur = stepFn(cur);
   }
 
-  scene.innerHTML = monthMarkers.map(m => `
+  // Scattered background shapes — density ~1 per 25 000 px² of scene area
+  const sceneWidth = scene.offsetWidth || 900;
+  const shapeCount = Math.max(8, Math.round(sceneWidth * actualH / 25000));
+  const shapes = Array.from({ length: shapeCount }, (_, i) => {
+    const s = Math.sin(i * 127.1 + 311.7);
+    const t2 = Math.sin(i * 269.5 + 183.3);
+    const u = Math.sin(i * 419.2 + 74.1);
+    const left = ((Math.abs(s) * 97) | 0);
+    const top2 = ((Math.abs(t2) * (actualH - 20)) | 0);
+    const size = 4 + ((Math.abs(u) * 18) | 0);
+    const alpha = 0.04 + Math.abs(Math.sin(i * 53)) * 0.07;
+    return { left, top: top2, size, alpha };
+  });
+
+  scene.innerHTML =
+    shapes.map(s => `
+    <div class="scene-shape" style="left:${s.left}%;top:${s.top}px;width:${s.size}px;height:${s.size}px;background:rgba(0,0,0,${s.alpha.toFixed(2)});"></div>`).join("") +
+    monthMarkers.map(m => `
     <div class="time-label" style="top:${m.top}px;">
       <div class="time-label-line"></div>
       <span class="time-label-text">${m.label}</span>
