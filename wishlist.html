@@ -170,7 +170,7 @@
 
   .thanks-scene {
     position: relative;
-    min-height: 560px;
+    margin-bottom: 1.5rem;
   }
 
   .congrats-cloud {
@@ -479,6 +479,10 @@ function renderCongrats() {
 
     return { ...c, top, left: COLS[col] };
   });
+
+  const actualH = Math.max(...placed.map(c => c.top + CLOUD_H)) + 30;
+  scene.style.minHeight = "";
+  scene.style.height = actualH + "px";
 
   scene.innerHTML = placed.map(c => `
     <div class="congrats-cloud" style="top:${c.top}px; left:${c.left}%;">
