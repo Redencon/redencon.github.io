@@ -176,11 +176,20 @@
     background: linear-gradient(to bottom, #eef4ff 0%, #f7f5f2 55%, #fdf8ef 100%);
   }
 
+  @keyframes scene-twinkle {
+    0%, 100% { opacity: var(--a, 0.1); transform: scale(1); }
+    50%      { opacity: calc(var(--a, 0.1) * 0.25); transform: scale(0.55); }
+  }
   .scene-shape {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
     z-index: 0;
+    opacity: var(--a, 0.1);
+    animation: scene-twinkle 3s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scene-shape { animation: none; }
   }
 
   .time-label {
@@ -207,42 +216,53 @@
     padding-right: 12px;
   }
 
+  .thanks-intro {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 1rem;
+  }
+
+  .congrats-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.1rem;
+    margin-bottom: 1.25rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #555; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .legend-name { font-weight: 500; }
+  .legend-count { color: #aaa; }
+  .legend-chat { color: #bbb; font-size: 0.72rem; }
+
   .congrats-cloud {
     position: absolute;
     z-index: 1;
     background: #fff;
     border: 1px solid #e5e0d8;
-    border-radius: 18px;
-    padding: 0.7rem 1rem 0.6rem;
-    max-width: 210px;
-    box-shadow: 0 2px 14px rgba(0,0,0,0.07);
-    transition: box-shadow 0.2s;
-  }
-  .congrats-cloud::after {
-    content: '';
-    position: absolute;
-    bottom: -9px;
-    left: 22px;
-    width: 0; height: 0;
-    border-left: 9px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 9px solid #fff;
-    filter: drop-shadow(0 2px 1px rgba(0,0,0,0.06));
-  }
-  .cloud-text {
-    font-size: 0.88rem;
-    color: #333;
-    margin-bottom: 0.4rem;
-    line-height: 1.4;
-  }
-  .cloud-meta {
-    font-size: 0.72rem;
-    color: #bbb;
+    border-left: 3px solid #ccc;
+    border-radius: 12px;
+    padding: 0.3rem 0.6rem;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+    white-space: nowrap;
     display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
+    align-items: baseline;
+    gap: 0.45rem;
+    transition: box-shadow 0.2s, transform 0.2s;
   }
-  .cloud-author { font-weight: 600; color: #999; }
+  .congrats-cloud:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
+  .cloud-author { font-weight: 600; font-size: 0.82rem; color: #444; }
+  .cloud-time { font-size: 0.7rem; color: #bbb; }
+  .congrats-cloud.is-auto { opacity: 0.82; }
+  .congrats-cloud.is-auto .cloud-author { font-weight: 500; font-style: italic; }
+  .cloud-badge {
+    font-size: 0.6rem;
+    color: #aaa;
+    border: 1px solid #e0ddd6;
+    border-radius: 6px;
+    padding: 0 4px;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+  }
 </style>
 </head>
 <body>
@@ -252,8 +272,8 @@
   <p class="text-muted mb-4" style="font-size:0.95rem;">Немного идей что я был бы рад получить без привязки к праздникам</p>
 
   <nav class="tab-bar">
-    <button class="tab-btn active">Вишлист</button>
-    <button class="tab-btn" disabled title="Скоро">Благодарности</button>
+    <button class="tab-btn active" data-tab="wishlist">Вишлист</button>
+    <button class="tab-btn" data-tab="thanks">Благодарности</button>
   </nav>
 
   <div class="notice-congrats p-3 mb-4">
@@ -261,7 +281,11 @@
   </div>
 
   <div class="wishlist-grid" id="wishlist-grid"></div>
-  <div class="thanks-scene" id="tab-thanks" style="display:none;"></div>
+  <div id="tab-thanks" style="display:none;">
+    <p class="thanks-intro">Все, кто поздравил меня с днём рождения 10 июня — расставлены по времени, а цветом отмечено, в какой компании это случилось.</p>
+    <div class="congrats-legend" id="congrats-legend"></div>
+    <div class="thanks-scene" id="thanks-scene"></div>
+  </div>
 
   <div class="notice-money p-3 mt-4">
     <em>О денежных подарках и подарочных картах:</em> Я не люблю получать денежные подарки. Не потому что я считаю их плохим подарком или потому что они выглядят непродуманными. Подарки для меня являются долгим напоминанием о проявленном внимании, и деньги имеют свойство долго не задерживаться на месте. В любом случае я буду рад обычным поздравлениям, и совсем не обязательно их сопровождать донатами.
@@ -479,56 +503,171 @@ function render() {
 render();
 
 // --- Благодарности ---
+// Группы поздравлений 10.06.2026. Два рода групп:
+//  - «корзины» личных сообщений, которые я сам разложил по времени суток (chat:false);
+//  - групповые чаты, где поздравляли пачкой из одного места (chat:true).
+const congratGroups = {
+  owls:     { name: "Night owls",                  accent: "#3f4ea0", bg: "#eef0fa", chat: false },
+  morning:  { name: "Morning birds",               accent: "#b07d12", bg: "#fdf6e3", chat: false },
+  lab006:   { name: "Lab006",                       accent: "#2f8f5b", bg: "#e8f5ed", chat: true  },
+  actually: { name: "Oh, actually!",                accent: "#c0671f", bg: "#fdeede", chat: false },
+  foxwood:  { name: "Foxwood chat",                 accent: "#1f8a8a", bg: "#e6f4f4", chat: true  },
+  smart:    { name: "Better late than never",       accent: "#7a4fb0", bg: "#f2eafa", chat: false },
+};
+
 const congrats = [
-  { author: "Настя",  time: "2025-01-01T00:07", text: "С Новым годом! Пусть всё задуманное сбывается" },
-  { author: "Паша",   time: "2025-01-01T10:30", text: "С Новым годом, дорогой!" },
-  { author: "Лёша",   time: "2025-02-14T14:22", text: "С Днём всех влюблённых! Ты лучший" },
-  { author: "Маша",   time: "2025-06-03T09:05", text: "С днём рождения! Желаю всего самого лучшего 🎂" },
-  { author: "Юля",    time: "2025-06-03T09:41", text: "С ДР!! Ты лучший, обнимаю" },
-  { author: "Серёжа", time: "2025-06-03T12:00", text: "С днём рождения, дружище! Здоровья и удачи" },
-  { author: "Катя",   time: "2025-06-03T18:55", text: "С днём рождения! Заслуживаешь всего хорошего" },
+  // Night owls — личка, глубокая ночь
+  { group: "owls", author: "Chase",       time: "2026-06-10T00:23" },
+  { group: "owls", author: "Fobo",        time: "2026-06-10T00:27" },
+  { group: "owls", author: "Ticer",       time: "2026-06-10T00:33" },
+  { group: "owls", author: "Shamsi",      time: "2026-06-10T00:49" },
+  { group: "owls", author: "Kob",         time: "2026-06-10T00:51" },
+  { group: "owls", author: "Arty",        time: "2026-06-10T01:07" },
+  { group: "owls", author: "Joystick TV", time: "2026-06-10T04:00", auto: true },
+
+  // Morning birds — личка, утро
+  { group: "morning", author: "Mom",         time: "2026-06-10T07:05" },
+  { group: "morning", author: "Fozi",        time: "2026-06-10T07:40" },
+  { group: "morning", author: "Ricky",       time: "2026-06-10T08:30" },
+  { group: "morning", author: "DETEKTIW",    time: "2026-06-10T09:05" },
+  { group: "morning", author: "Realay",      time: "2026-06-10T09:08" },
+  { group: "morning", author: "Teu",         time: "2026-06-10T10:00" },
+  { group: "morning", author: "Grandmother Olya", time: "2026-06-10T10:01" },
+  { group: "morning", author: "Megafon",     time: "2026-06-10T10:04", auto: true },
+  { group: "morning", author: "Demix",       time: "2026-06-10T10:04", auto: true },
+  { group: "morning", author: "Fadeybog",    time: "2026-06-10T10:29" },
+  { group: "morning", author: "Podlesny",    time: "2026-06-10T11:26" },
+  { group: "morning", author: "Wodoleev",    time: "2026-06-10T11:34" },
+  { group: "morning", author: "Rem",         time: "2026-06-10T11:40" },
+
+  // Lab006 — групповой чат
+  { group: "lab006", author: "Liza",             time: "2026-06-10T12:04" },
+  { group: "lab006", author: "Dasha",            time: "2026-06-10T12:04" },
+  { group: "lab006", author: "Lev",              time: "2026-06-10T12:05" },
+  { group: "lab006", author: "Dasha",            time: "2026-06-10T12:05" },
+  { group: "lab006", author: "Sergey",           time: "2026-06-10T12:05" },
+  { group: "lab006", author: "Anna",             time: "2026-06-10T12:05" },
+  { group: "lab006", author: "Leyla",            time: "2026-06-10T12:07" },
+  { group: "lab006", author: "Ivan",             time: "2026-06-10T12:09" },
+  { group: "lab006", author: "A L",              time: "2026-06-10T12:11" },
+  { group: "lab006", author: "Marina",           time: "2026-06-10T12:12" },
+  { group: "lab006", author: "Alexander",        time: "2026-06-10T12:13" },
+  { group: "lab006", author: "Homer",            time: "2026-06-10T12:21" },
+  { group: "lab006", author: "Valera",           time: "2026-06-10T12:29" },
+  { group: "lab006", author: "vrtcl",            time: "2026-06-10T16:08" },
+  { group: "lab006", author: "Irina Alekseevna", time: "2026-06-10T16:19" },
+
+  // Oh, actually! — личка, ранний день
+  { group: "actually", author: "ShiroyaTahiro", time: "2026-06-10T13:00" },
+  { group: "actually", author: "Sberbank",      time: "2026-06-10T13:09", auto: true },
+  { group: "actually", author: "Trolliam",      time: "2026-06-10T13:11" },
+  { group: "actually", author: "Rayan",         time: "2026-06-10T13:21" },
+  { group: "actually", author: "Royskrim",      time: "2026-06-10T13:30" },
+  { group: "actually", author: "Chiffa",        time: "2026-06-10T13:48" },
+  { group: "actually", author: "Keyzi",         time: "2026-06-10T13:49" },
+
+  // Foxwood chat — групповой чат
+  { group: "foxwood", author: "Deny",        time: "2026-06-10T14:27" },
+  { group: "foxwood", author: "Leonard",     time: "2026-06-10T14:30" },
+  { group: "foxwood", author: "Diego Irbis", time: "2026-06-10T14:36" },
+  { group: "foxwood", author: "Dellmi",      time: "2026-06-10T14:38" },
+  { group: "foxwood", author: "Femmy",       time: "2026-06-10T14:48" },
+
+  // Better late than never — личка, вечер и ночь
+  { group: "smart", author: "HP Sergey",        time: "2026-06-10T15:20" },
+  { group: "smart", author: "Gosuslugi",        time: "2026-06-10T17:15", auto: true },
+  { group: "smart", author: "Gleb Klimov",      time: "2026-06-10T18:09" },
+  { group: "smart", author: "ChatGPT + Claude", time: "2026-06-10T18:55", auto: true, badge: "ИИ" },
+  { group: "smart", author: "Piksm",            time: "2026-06-10T19:26" },
+  { group: "smart", author: "Radost'",          time: "2026-06-10T19:51" },
+  { group: "smart", author: "Grandfather",      time: "2026-06-10T21:00" },
+  { group: "smart", author: "Dad",              time: "2026-06-10T21:15" }, // по видеозвонку с мамой
+  { group: "smart", author: "Kate",             time: "2026-06-10T21:43" },
+  { group: "smart", author: "Olezha",           time: "2026-06-10T21:50" },
+  { group: "smart", author: "Samvel",           time: "2026-06-10T21:53" },
+  { group: "smart", author: "Zack",             time: "2026-06-10T23:48" },
 ];
 
-// Three non-overlapping columns (left%, given max-width:210px in a 960px container)
-const COLS = [3, 34, 65];
-const CLOUD_H = 95;
-const V_GAP = 18;
+const CLOUD_H = 30; // height of a compact note chip, in px
 
-function formatTime(isoStr) {
-  const d = new Date(isoStr);
-  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" })
-    + " · " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+function hhmm(isoStr) {
+  return new Date(isoStr).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+}
+
+function renderLegend() {
+  const counts = {};
+  congrats.forEach(c => { counts[c.group] = (counts[c.group] || 0) + 1; });
+  const order = ["owls", "morning", "lab006", "actually", "foxwood", "smart"];
+  document.getElementById("congrats-legend").innerHTML = order.map(k => {
+    const g = congratGroups[k];
+    return `<span class="legend-item">
+      <span class="legend-swatch" style="background:${g.accent}"></span>
+      <span class="legend-name">${g.name}</span>
+      <span class="legend-count">${counts[k] || 0}</span>
+      ${g.chat ? '<span class="legend-chat">· чат</span>' : ''}
+    </span>`;
+  }).join("");
 }
 
 function renderCongrats() {
-  const scene = document.getElementById("tab-thanks");
+  const scene = document.getElementById("thanks-scene");
   const sorted = [...congrats].sort((a, b) => new Date(a.time) - new Date(b.time));
 
   const times = sorted.map(c => new Date(c.time).getTime());
   const minT = times[0], maxT = times[times.length - 1];
 
-  // Ensure enough vertical room for all items per column
-  const itemsPerCol = Math.ceil(sorted.length / COLS.length);
-  const minSceneH = itemsPerCol * (CLOUD_H + V_GAP) + 40;
-  const sceneH = Math.max(560, minSceneH);
-  scene.style.minHeight = sceneH + "px";
+  // ---- Organic, collision-avoiding layout ----
+  // Each note gets a vertical position from its timestamp, then a horizontal
+  // slot is chosen at random among the free gaps in that row. When a moment is
+  // crowded (the noon chat bursts) notes fan out across the width first and only
+  // spill downward once the row is full — no rigid columns, so the scatter stays
+  // as loose as the underlying data.
+  const SW = scene.offsetWidth || 880;
+  const topMin = 10;
+  const topMax = topMin + Math.max(520, sorted.length * 14);
+  const GAP_X = 12, GAP_Y = 7, STEP = 6;
 
-  const topMin = 10, topMax = sceneH - CLOUD_H - 20;
+  // Width estimate so we can pack notes horizontally before they're in the DOM.
+  // Deliberately a touch generous so chips never collide or bleed off the edge.
+  function estWidth(c) {
+    let w = 24 + c.author.length * 7.9 + 8 + 32; // padding + author + gap + time
+    if (c.badge || c.auto) w += 34;
+    return Math.min(Math.max(Math.round(w), 70), Math.round(SW * 0.46));
+  }
 
-  // Track last-placed bottom per column to enforce minimum spacing
-  const colBottom = COLS.map(() => topMin - CLOUD_H - V_GAP);
-
-  const placed = sorted.map((c, i) => {
+  const placed = [];
+  sorted.forEach((c, i) => {
+    const w = estWidth(c);
     const t = new Date(c.time).getTime();
     const frac = maxT === minT ? i / sorted.length : (t - minT) / (maxT - minT);
-    const idealTop = Math.round(topMin + frac * (topMax - topMin));
+    const baseTop = topMin + frac * (topMax - topMin);
 
-    const col = i % COLS.length;
-    const minTop = colBottom[col] + CLOUD_H + V_GAP;
-    const top = Math.max(idealTop, minTop);
-    colBottom[col] = top;
+    let top = baseTop, left = null, guard = 0;
+    while (left === null && guard++ < 6000) {
+      // Intervals occupied by notes whose vertical band overlaps this row.
+      const occ = placed
+        .filter(p => top < p.top + p.h + GAP_Y && top + CLOUD_H + GAP_Y > p.top)
+        .map(p => [Math.max(0, p.left - GAP_X), Math.min(SW, p.left + p.w + GAP_X)])
+        .sort((a, b) => a[0] - b[0]);
 
-    return { ...c, top, left: COLS[col] };
+      // Merge occupied intervals into free gaps wide enough to hold the note.
+      const gaps = [];
+      let cursor = 0;
+      for (const [a, b] of occ) {
+        if (a - cursor >= w) gaps.push([cursor, a]);
+        cursor = Math.max(cursor, b);
+      }
+      if (SW - cursor >= w) gaps.push([cursor, SW]);
+
+      if (gaps.length) {
+        const g = gaps[Math.floor(Math.random() * gaps.length)];
+        left = Math.round(g[0] + Math.random() * Math.max(0, g[1] - w - g[0]));
+      } else {
+        top += STEP; // crowded row — drop down a touch and try again
+      }
+    }
+    if (left === null) left = Math.round(Math.random() * Math.max(0, SW - w));
+    placed.push({ ...c, top: Math.round(top), left, w, h: CLOUD_H });
   });
 
   const actualH = Math.max(...placed.map(c => c.top + CLOUD_H)) + 40;
@@ -540,7 +679,11 @@ function renderCongrats() {
   const H = 3600e3, D = 86400e3, W = 7 * D;
 
   let floorFn, stepFn, labelFn;
-  if (spanMs < 6 * H) {
+  if (spanMs < 1.5 * D) {
+    floorFn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours() - (d.getHours() % 3));
+    stepFn  = d => new Date(d.getTime() + 3 * H);
+    labelFn = d => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  } else if (spanMs < 6 * H) {
     floorFn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() < 30 ? 0 : 30);
     stepFn  = d => new Date(d.getTime() + H / 2);
     labelFn = d => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
@@ -567,44 +710,63 @@ function renderCongrats() {
   let cur = floorFn(new Date(minT));
   while (cur.getTime() <= maxT) {
     const t = cur.getTime();
+    if (t < minT) { cur = stepFn(cur); continue; }
     const frac = maxT === minT ? 0 : (t - minT) / (maxT - minT);
     const top = Math.round(topMin + frac * (topMax - topMin));
     monthMarkers.push({ label: labelFn(new Date(t)), top });
     cur = stepFn(cur);
   }
 
-  // Scattered background shapes — density ~1 per 25 000 px² of scene area
-  const sceneWidth = scene.offsetWidth || 900;
-  const shapeCount = Math.max(8, Math.round(sceneWidth * actualH / 25000));
+  // Background glitter — lots of tiny twinkling specks, a few warm/gold.
+  const shapeCount = Math.max(60, Math.round(SW * actualH / 5200));
   const shapes = Array.from({ length: shapeCount }, (_, i) => {
-    const s = Math.sin(i * 127.1 + 311.7);
+    const s  = Math.sin(i * 127.1 + 311.7);
     const t2 = Math.sin(i * 269.5 + 183.3);
-    const u = Math.sin(i * 419.2 + 74.1);
-    const left = ((Math.abs(s) * 97) | 0);
-    const top2 = ((Math.abs(t2) * (actualH - 20)) | 0);
-    const size = 4 + ((Math.abs(u) * 18) | 0);
-    const alpha = 0.04 + Math.abs(Math.sin(i * 53)) * 0.07;
-    return { left, top: top2, size, alpha };
+    const u  = Math.sin(i * 419.2 + 74.1);
+    const v  = Math.sin(i * 97.3 + 12.9);
+    const left = Math.abs(s) * 98;
+    const top2 = Math.abs(t2) * (actualH - 8);
+    const size = 1.5 + Math.abs(u) * 4;
+    const alpha = 0.08 + Math.abs(v) * 0.16;
+    const gold = Math.abs(Math.sin(i * 53.7)) > 0.62;
+    const dur = 2.2 + Math.abs(Math.sin(i * 17.3)) * 3.6;
+    const delay = Math.abs(Math.sin(i * 31.1)) * 5;
+    return { left, top: top2, size, alpha, gold, dur, delay };
   });
 
   scene.innerHTML =
     shapes.map(s => `
-    <div class="scene-shape" style="left:${s.left}%;top:${s.top}px;width:${s.size}px;height:${s.size}px;background:rgba(0,0,0,${s.alpha.toFixed(2)});"></div>`).join("") +
+    <div class="scene-shape" style="left:${s.left.toFixed(2)}%;top:${s.top.toFixed(1)}px;width:${s.size.toFixed(1)}px;height:${s.size.toFixed(1)}px;background:${s.gold ? "#d8b24a" : "#000"};--a:${s.alpha.toFixed(2)};animation-duration:${s.dur.toFixed(2)}s;animation-delay:-${s.delay.toFixed(2)}s;"></div>`).join("") +
     monthMarkers.map(m => `
     <div class="time-label" style="top:${m.top}px;">
       <div class="time-label-line"></div>
       <span class="time-label-text">${m.label}</span>
-    </div>`).join("") + placed.map(c => `
-    <div class="congrats-cloud" style="top:${c.top}px; left:${c.left}%;">
-      <div class="cloud-text">${c.text}</div>
-      <div class="cloud-meta">
-        <span class="cloud-author">${c.author}</span>
-        <span>${formatTime(c.time)}</span>
-      </div>
-    </div>`).join("");
+    </div>`).join("") + placed.map(c => {
+      const g = congratGroups[c.group];
+      const badge = c.badge || (c.auto ? "авто" : "");
+      return `
+    <div class="congrats-cloud${c.auto ? " is-auto" : ""}" style="top:${c.top}px;left:${c.left}px;border-left-color:${g.accent};background:${g.bg};" title="${g.name}">
+      <span class="cloud-author" style="color:${g.accent}">${c.author}</span>
+      <span class="cloud-time">${hhmm(c.time)}</span>
+      ${badge ? `<span class="cloud-badge">${badge}</span>` : ""}
+    </div>`; }).join("");
 }
 
-renderCongrats();
+let thanksRendered = false;
+function showTab(tab) {
+  const onWishlist = tab === "wishlist";
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.getElementById("wishlist-grid").style.display = onWishlist ? "" : "none";
+  document.getElementById("tab-thanks").style.display = onWishlist ? "none" : "";
+  // The gift/money notices belong to the wishlist — hide them on Благодарности.
+  document.querySelectorAll(".notice-congrats, .notice-money").forEach(n => n.style.display = onWishlist ? "" : "none");
+  if (tab === "thanks" && !thanksRendered) {
+    renderLegend();
+    renderCongrats();
+    thanksRendered = true;
+  }
+}
+document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
 </script>
 </body>
 </html>
